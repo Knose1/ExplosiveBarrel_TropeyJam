@@ -48,3 +48,5 @@ FMOD/**.unsaved
 FMOD/**.cache
 FMOD/**.restore
 run.bat
+/Assets/Plugins
+/Assets/Demigiant

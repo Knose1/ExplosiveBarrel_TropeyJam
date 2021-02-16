@@ -11,6 +11,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Com.Github.Knose1.Common.Common;
 
 namespace Com.Github.Knose1.ExploseEm.UI {
 	public class Hud : MonoBehaviour {
@@ -31,15 +32,16 @@ namespace Com.Github.Knose1.ExploseEm.UI {
 		int oldSiliciumValue;
 		int oldSteelValue;
 
-		private void Awake()
+		private void Start()
 		{
-			GameManager.OnStart += GameManager_OnStart;
+			GameManager gm = Singleton.GetInstance<GameManager>();
+			gm.OnStart += GameManager_OnStart;
 			//GameManager.OnExplosion += GameManager_OnExplosion;
-			GameManager.OnExplosionEnd += GameManager_OnExplosionEnd;
-			GameManager.OnCraftEnd += GameManager_OnCraftEnd;
+			gm.OnExplosionEnd += GameManager_OnExplosionEnd;
+			gm.OnCraftEnd += GameManager_OnCraftEnd;
 			GridView.OnSetBombs += GridView_OnSetBombs;
 		}
-		private void GameManager_OnExplosion(GameManager gameManager, System.Collections.Generic.List<Vector2> arg2, Vector2 arg3)
+		private void GameManager_OnExplosion(GameManager gameManager, System.Collections.Generic.List<Vector2> arg2, Vector2 arg3, bool _)
 		{
 			DOTween.To(() => { return oldRockValue; }, (int value) => { SetRock(oldRockValue = value); }, gameManager.RockCount, 1);
 			DOTween.To(() => { return oldSiliciumValue; }, (int value) => { SetSilicium(oldSiliciumValue = value); }, gameManager.SiliciumCount, 1);
@@ -100,9 +102,13 @@ namespace Com.Github.Knose1.ExploseEm.UI {
 
 		private void OnDestroy()
 		{
-			GameManager.OnStart -= GameManager_OnStart;
-			GameManager.OnExplosion -= GameManager_OnExplosion;
-			GameManager.OnExplosionEnd -= GameManager_OnExplosionEnd;
+			GameManager gm = Singleton.GetInstance<GameManager>();
+			if (gm)
+			{
+				gm.OnStart -= GameManager_OnStart;
+				gm.OnExplosion -= GameManager_OnExplosion;
+				gm.OnExplosionEnd -= GameManager_OnExplosionEnd;
+			}
 			GridView.OnSetBombs -= GridView_OnSetBombs;
 		}
 	}

@@ -33,11 +33,12 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 		/**************/
 		/*   Events   */
 		/**************/
-		public static event Action<GameManager> OnStart;
-		public static event Action<GameManager, List<TileType>> OnLineAdded;
-		public static event Action<GameManager, List<Vector2>, Vector2> OnExplosion;
-		public static event Action<GameManager> OnExplosionEnd;
-		public static event Action<GameManager> OnCraftEnd;
+		public event Action<GameManager> OnGameOver;
+		public event Action<GameManager> OnStart;
+		public event Action<GameManager, List<TileType>> OnLineAdded;
+		public event Action<GameManager, List<Vector2>, Vector2, bool> OnExplosion;
+		public event Action<GameManager> OnExplosionEnd;
+		public event Action<GameManager> OnCraftEnd;
 
 		/******************/
 		/*   Serialized   */
@@ -123,6 +124,13 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 
 			OnStart?.Invoke(this);
 
+			OnCraftEnd += GameManager_OnCraftEnd;
+		}
+
+		private void GameManager_OnCraftEnd(GameManager obj) 
+		{
+			if (obj._bombCount <= 0)
+				obj.GameOver();
 		}
 
 		private void Controller_OnBombsSet()
@@ -144,7 +152,7 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 				{
 					ExploseGridBombs();
 
-					DoExplosion(additiveBombList, bombList[i], ref gain);
+					DoExplosion(additiveBombList, bombList[i], ref gain, false);
 
 					yield return new WaitForSecondsRealtime(explosionTime);
 				}
@@ -156,7 +164,7 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 					{
 						foreach (Vector2 pos in additiveBombList)
 						{
-							DoExplosion(additiveBombList2, pos, ref gain);
+							DoExplosion(additiveBombList2, pos, ref gain, true);
 						}
 
 						additiveBombList = additiveBombList2;
@@ -220,7 +228,7 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 			}
 		}
 
-		private void DoExplosion(List<Vector2> additiveBombList, Vector2 origin, ref Gain gain)
+		private void DoExplosion(List<Vector2> additiveBombList, Vector2 origin, ref Gain gain, bool isGrid)
 		{
 			List<Vector2> explosed = new List<Vector2>
 			{
@@ -247,7 +255,7 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 				}
 			}
 
-			OnExplosion?.Invoke(this, explosed, origin);
+			OnExplosion?.Invoke(this, explosed, origin, isGrid);
 		}
 
 		private bool Explode(List<Vector2> additiveBombList, int x, int y, ref Gain gain)
@@ -284,14 +292,23 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 
 		private void GameOver()
 		{
+			OnGameOver?.Invoke(this);
 			EndGame();
 		}
 
 		private void EndGame()
 		{
+			OnCraftEnd -= GameManager_OnCraftEnd;
 			_controller.OnBombsSet -= Controller_OnBombsSet;
 			_controller.Destroy();
 			StopAllCoroutines();
+
+			OnGameOver = null;
+			OnStart = null;
+			OnLineAdded = null;
+			OnExplosion = null;
+			OnExplosionEnd = null;
+			OnCraftEnd = null;
 		}
 
 		public bool IsCellTaken(int x, int y)
@@ -386,6 +403,7 @@ namespace Com.Github.Knose1.ExploseEm.Game {
 		private void OnDestroy()
 		{
 			EndGame();
+			Singleton.DestroyInstance(this);
 		}
 
 		protected struct Gain

@@ -26,6 +26,7 @@ namespace Com.Github.Knose1.ExploseEm.Game.View {
 		[SerializeField] protected GameObject prefabGridBomb;
 		[SerializeField] protected GameObject prefabMyBomb;
 		[SerializeField] protected ParticleSystem explosionParticlePrefab;
+		[SerializeField] protected ParticleSystem explosionBombGridParticlePrefab;
 
 		private bool hasClicked = false;
 		private bool hadMoved = false;
@@ -38,16 +39,17 @@ namespace Com.Github.Knose1.ExploseEm.Game.View {
 		/// </summary>
 		private List<List<GameManager.TileType>> animationWaitList = new List<List<GameManager.TileType>>();
 
-		private void Awake()
+		private void Start()
 		{
 			Tile.OnPointerDownUnity += Tile_OnPointerDownUnity;
 			Tile.OnPointerUpUnity += Tile_OnPointerUpUnity;
 			Tile.OnPointerEnterUnity += Tile_OnPointerEnterUnity;
 
-			GameManager.OnStart += GameManager_OnStart;
-			GameManager.OnLineAdded += GameManager_OnLineAdded;
-			GameManager.OnExplosion += GameManager_OnExplosion;
-			GameManager.OnExplosionEnd += GameManager_OnExplosionEnd;
+			GameManager gm = Singleton.GetInstance<GameManager>();
+			gm.OnStart += GameManager_OnStart;
+			gm.OnLineAdded += GameManager_OnLineAdded;
+			gm.OnExplosion += GameManager_OnExplosion;
+			gm.OnExplosionEnd += GameManager_OnExplosionEnd;
 		}
 
 		private void GameManager_OnStart(GameManager obj)
@@ -110,7 +112,7 @@ namespace Com.Github.Knose1.ExploseEm.Game.View {
 			ExecuteAnimation();
 		}
 
-		private void GameManager_OnExplosion(GameManager arg1, List<Vector2> arg2, Vector2 origin)
+		private void GameManager_OnExplosion(GameManager arg1, List<Vector2> arg2, Vector2 origin, bool isGrid)
 		{
 			for (int i = arg2.Count - 1; i >= 0; i--)
 			{
@@ -118,7 +120,7 @@ namespace Com.Github.Knose1.ExploseEm.Game.View {
 				grid.GetTileAt((int)pos.x, (int)pos.y).GetComponent<Tile>().RemoveContent();
 			}
 
-			RectTransform rectTransform = Instantiate(explosionParticlePrefab, grid.GetTileAt((int)origin.x, (int)origin.y).transform).gameObject.AddComponent<RectTransform>();
+			RectTransform rectTransform = Instantiate(isGrid ? explosionBombGridParticlePrefab : explosionParticlePrefab, grid.GetTileAt((int)origin.x, (int)origin.y).transform).gameObject.AddComponent<RectTransform>();
 			rectTransform.anchorMin = Vector2.zero;
 			rectTransform.anchorMax = Vector2.one;
 			rectTransform.sizeDelta = Vector2.zero;
@@ -262,6 +264,14 @@ namespace Com.Github.Knose1.ExploseEm.Game.View {
 
 		private void OnDestroy()
 		{
+			GameManager gm = Singleton.GetInstance<GameManager>();
+			if (gm)
+			{
+				gm.OnStart -= GameManager_OnStart;
+				gm.OnLineAdded -= GameManager_OnLineAdded;
+				gm.OnExplosion -= GameManager_OnExplosion;
+				gm.OnExplosionEnd -= GameManager_OnExplosionEnd;
+			}
 			Tile.OnPointerDownUnity -= Tile_OnPointerDownUnity;
 			Tile.OnPointerUpUnity -= Tile_OnPointerUpUnity;
 			Tile.OnPointerEnterUnity -= Tile_OnPointerEnterUnity;

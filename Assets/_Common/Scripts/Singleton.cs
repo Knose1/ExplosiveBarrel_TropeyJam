@@ -1,10 +1,31 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Com.Github.Knose1.Common.Common
 {
+	internal class SingletonBehaviour : MonoBehaviour
+	{
+		private void Awake()
+		{
+			DontDestroyOnLoad(gameObject);	
+		}
+
+		public void WaitForEndOfFrame(System.Action then)
+		{
+			IEnumerator lFunc()
+			{
+				yield return new WaitForEndOfFrame();
+				then();
+			}
+			StartCoroutine(lFunc());
+		}
+	}
+
 	public static class Singleton
 	{
+		private static SingletonBehaviour singletonBehaviour;
+
 		private const string LOG_SET = "[Singleton] instance of {0} successfuly set.";
 		private const string LOG_DESTROY = "[Singleton] instance of {0} successfuly destroyed.";
 		private const string LOG_EXISTS = "[Singleton] The instance of {0} already exists";
@@ -15,12 +36,19 @@ namespace Com.Github.Knose1.Common.Common
 		/// </summary>
 		private static Dictionary<System.Type, Object> Instances = new Dictionary<System.Type, Object>();
 
+		public static void Init()
+		{
+			if (!singletonBehaviour)
+				singletonBehaviour = new GameObject("Singleton").AddComponent<SingletonBehaviour>();
+		}
+		
 		/// <summary>
 		/// Get the instance of a specific class
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		public static T GetInstance<T>() where T : Object
 		{
+			Init();
 			T instance = GetValueInDictionary<T>();
 
 			if (!instance)
@@ -32,6 +60,8 @@ namespace Com.Github.Knose1.Common.Common
 			return instance;
 		}
 
+		
+
 		/// <summary>
 		/// Set the current instance to a value
 		/// </summary>
@@ -40,6 +70,7 @@ namespace Com.Github.Knose1.Common.Common
 		/// <param name="force">If true : Will not check if the instance is already registered</param>
 		public static void SetInstance<T>(this T instance, bool force = false) where T : Object
 		{
+			Init();
 			System.Type type = typeof(T);
 
 			if (!force && GetValueInDictionary<T>())
@@ -60,6 +91,7 @@ namespace Com.Github.Knose1.Common.Common
 		/// <param name="instance">The instance</param>
 		public static void DestroyInstance<T>(this T instance) where T : Object
 		{
+			Init();
 			if (GetValueInDictionary<T>() != instance) return;
 
 			System.Type type = typeof(T);
@@ -72,10 +104,17 @@ namespace Com.Github.Knose1.Common.Common
 		/// Set the current instance to null
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		public static void DestroyInstance<T>() where T : Object => SetInstance<T>(null, true);
-		
+		public static void DestroyInstance<T>() where T : Object
+		{
+			Init();
+			singletonBehaviour.WaitForEndOfFrame(
+				() => { SetInstance<T>(null, true); }
+			);
+		}
+
 		private static T GetValueInDictionary<T>() where T : Object
 		{
+			Init();
 			System.Type type = typeof(T);
 			T instance = null;
 

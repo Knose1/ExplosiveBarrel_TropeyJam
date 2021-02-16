@@ -225,7 +225,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.8301887, g: 0.23206933, b: 0.21537916, a: 1}
+      maxColor: {r: 1, g: 0.6993609, b: 0.11792451, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -4965,7 +4965,7 @@ GameObject:
   - component: {fileID: 1758977282532582075}
   - component: {fileID: 6511182286136103047}
   m_Layer: 0
-  m_Name: ParticleExplosion
+  m_Name: ParticleExplosionGridBomb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5181,18 +5181,18 @@ ParticleSystem:
       maxColor: {r: 0.8301887, g: 0.23206933, b: 0.21537916, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.4716981, g: 0, b: 0, a: 0.627451}
-        key1: {r: 1, g: 0, b: 0, a: 0.627451}
-        key2: {r: 1, g: 0.5019608, b: 0, a: 0}
-        key3: {r: 1, g: 0.78079355, b: 0, a: 0}
+        key0: {r: 0.5377358, g: 0.20760342, b: 0, a: 0.627451}
+        key1: {r: 1, g: 0.36892486, b: 0, a: 0.627451}
+        key2: {r: 1, g: 0.7995194, b: 0, a: 0}
+        key3: {r: 1, g: 0.7995194, b: 0, a: 0}
         key4: {r: 0.05299455, g: 0.6546216, b: 0.20425607, a: 0}
         key5: {r: 0, g: 0.63529414, b: 0.21568628, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 771
-        ctime1: 31418
+        ctime1: 30840
         ctime2: 63608
-        ctime3: 65535
+        ctime3: 63608
         ctime4: 64379
         ctime5: 65535
         ctime6: 0
@@ -5240,7 +5240,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 2.5
+      scalar: 2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
